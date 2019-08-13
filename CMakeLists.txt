@@ -38,6 +38,9 @@ find_package(Threads REQUIRED)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(FUSE 2.6 REQUIRED)
 
+set(IRODS_CLIENT_C_INCLUDES_ROOT /home/kory/dev/prog/cpp/irods_client_library_c)
+set(IRODS_CLIENT_C_LIBS_ROOT /home/kory/dev/prog/cpp/build_irods_client_library_c)
+
 add_executable(
   irodsFs
   ${CMAKE_SOURCE_DIR}/src/iFuse.BufferedFS.cpp
@@ -56,20 +59,31 @@ add_executable(
 target_link_libraries(
   irodsFs
   PRIVATE
-  irods_client
-  irods_plugin_dependencies
-  irods_common
+  #irods_client
+  #irods_plugin_dependencies
+  #irods_common
+  ${IRODS_CLIENT_C_LIBS_ROOT}/libirods_client_c.so
   ${FUSE_LIBRARIES}
   Threads::Threads
   )
 target_include_directories(
   irodsFs
   PRIVATE
-  ${IRODS_INCLUDE_DIRS}
+  #${IRODS_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/include
   ${FUSE_INCLUDE_DIRS}
+  ${IRODS_CLIENT_C_INCLUDES_ROOT}/include/api
+  ${IRODS_CLIENT_C_INCLUDES_ROOT}/include/core
+  ${IRODS_CLIENT_C_INCLUDES_ROOT}/include/hasher
   )
-target_compile_definitions(irodsFs PRIVATE ${IRODS_COMPILE_DEFINITIONS} IRODS_FUSE_USE_MYSQL_ICAT_DRIVER_PATCH BOOST_SYSTEM_NO_DEPRECATED)
+target_compile_definitions(irodsFs PRIVATE ${IRODS_COMPILE_DEFINITIONS}
+                                           IRODS_FUSE_USE_MYSQL_ICAT_DRIVER_PATCH
+                                           BOOST_SYSTEM_NO_DEPRECATED
+                                           RODS_REL_VERSION="rods4.3.0"
+                                           RODS_API_VERSION="d"
+                                           IRODS_VERSION_MAJOR=4
+                                           IRODS_VERSION_MINOR=3
+                                           IRODS_VERSION_PATCHLEVEL=0)
 target_compile_options(irodsFs PRIVATE -Wno-write-strings)
 set_property(TARGET irodsFs PROPERTY CXX_STANDARD ${IRODS_CXX_STANDARD})
 
